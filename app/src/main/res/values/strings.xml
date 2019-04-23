@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="action_settings">Settings</string>
+    <string name="y">Yの値</string>
+    <string name="z">Zの値</string>
+    <string name="x">Xの値</string>
+    <string name="x_string_x">X軸の傾き：@string/x</string>
+    <string name="y_string_y">Y軸の傾き：@string/y</string>
+    <string name="z_string_z">Z軸の傾き：@string/z</string>
+    <string name="X">X軸の値：</string>
+    <string name="Y">Y軸の値：</string>
+    <string name="Z">Z軸の値：</string>
+    <string name="kasokudo">加速度センサーのデータ</string>
+</resources>
