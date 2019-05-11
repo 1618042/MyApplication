@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -8,6 +11,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -24,7 +28,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     String [] names = new String[]{"x-value", "y-value", "z-value"};
     int[] colors = new int[]{Color.RED, Color.GREEN, Color.BLUE};
 
-    boolean line = true;
+    //boolean line = true;
 
     String filename = "test.csv";
 
@@ -49,7 +52,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Handler handler;
     Timer timer;
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日HH時mm分ss秒", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/HH/mm/ss", Locale.getDefault());
+
+    OpenHelper helper;
+    SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -115,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //System.out.println(event.sensor.getType());
 
-            //出力
+            //csv出力
             try{
                 FileWriter fw = new FileWriter(getFilesDir()+filename,true);//true追記、false上書き
                 PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
@@ -140,6 +146,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             }
         }
+        //DB
+
+        if (helper == null){
+            helper = new OpenHelper(getApplicationContext());
+            Log.d("debug","OpenHelper");
+        }
+        if (db == null){
+            helper.getWritableDatabase();
+            Log.d("debug","helper.getWritableDatabase");
+        }
+        insertData(/*db,*/event);
+        Log.d("debug","insertData");
+        readData();
+        Log.d("debug","readData");
+
     }
     private LineDataSet createSet(String label, int color){
         LineDataSet set = new LineDataSet(null, label);
@@ -159,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume(){
         super.onResume();
-        manager.registerListener(this,sensor,SensorManager.SENSOR_DELAY_UI);
+        manager.registerListener(this,sensor,62500);
 
     }
 
@@ -173,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onClick(View view){
         switch (view.getId()){
             case R.id.button_start:
-                manager.registerListener(this,sensor, SensorManager.SENSOR_DELAY_UI);
+                manager.registerListener(this,sensor, 602500);
                 break;
 
             case R.id.button_stop:
@@ -191,12 +212,49 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    /*private String date(){
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日HH時mm分ss秒", Locale.getDefault());
-        System.out.println("時間");
-        return sdf.format(date);
-    }*/
+    private void insertData(/*SQLiteDatabase db,*/ SensorEvent event){
+        helper = new OpenHelper(this);
+        db = helper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(" time", time);
+        String value = event.values[0]+","+event.values[1]+","+event.values[2];
+        values.put(" accelerometer", value);
+        System.out.println("value: "+ value);
+        db.insert("test1db", null, values);
 
+    }
+    private void readData(){
+        if (helper == null){
+            helper = new OpenHelper(getApplicationContext());
+            Log.d("a","help");
+        }
+        if(db == null){
+            db = helper.getReadableDatabase();
+            Log.d("a","db");
+        }
+        Cursor cursor = db.query(
+                "test1db",
+                new String[]{ "time", "accelerometer" },
+                null,
+                null,
+                null,
+                null,
+                null
+
+        );
+        cursor.moveToFirst();
+
+        StringBuilder sbuilder = new StringBuilder();
+        for (int i = 0; i < cursor.getCount(); i++){
+            sbuilder.append(cursor.getString(0));
+            sbuilder.append(": ");
+            sbuilder.append(cursor.getInt(1));
+            sbuilder.append("\n");
+            cursor.moveToNext();
+        }
+        cursor.close();//忘れずに！
+
+
+
+    }
 }
-
