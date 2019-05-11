@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Handler handler;
     Timer timer;
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/HH/mm/ss", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/HH/mm/ss/SS", Locale.getDefault());
 
     OpenHelper helper;
     SQLiteDatabase db;
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                 });
             }
-        },0,1000);//0秒後に1秒感覚で実行
+        },0,1);//0秒後に1秒感覚で実行
 
     }
     @Override
