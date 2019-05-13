@@ -1,6 +1,9 @@
 package com.example.myapplication;
 
+import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -8,8 +11,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +39,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener, LocationListener {
     SensorManager manager;
     Sensor sensor;
     TextView xTextView;
@@ -52,10 +59,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Handler handler;
     Timer timer;
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/HH/mm/ss/SS", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/,HH:mm:ss:SS", Locale.getDefault());
 
     OpenHelper helper;
     SQLiteDatabase db;
+
+    LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -156,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             helper.getWritableDatabase();
             Log.d("debug","helper.getWritableDatabase");
         }
-        insertData(/*db,*/event);
+        insertData(event);
         Log.d("debug","insertData");
         readData();
         Log.d("debug","readData");
@@ -182,12 +191,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
         manager.registerListener(this,sensor,62500);
 
+        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
+        }
+
     }
 
     @Override
     protected void onPause(){
         super.onPause();
         manager.unregisterListener(this);
+        if (locationManager != null){
+            locationManager.removeUpdates(this);
+        }
     }
 
     @Override
@@ -212,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    private void insertData(/*SQLiteDatabase db,*/ SensorEvent event){
+    private void insertData( SensorEvent event){
         helper = new OpenHelper(this);
         db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -220,6 +237,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String value = event.values[0]+","+event.values[1]+","+event.values[2];
         values.put(" accelerometer", value);
         System.out.println("value: "+ value);
+        //values.put(" latitude", location.getLatitude());
+        //values.put(" longitude", location.getLongitude());
         db.insert("test1db", null, values);
 
     }
@@ -234,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         Cursor cursor = db.query(
                 "test1db",
-                new String[]{ "time", "accelerometer" },
+                new String[]{ "time", "accelerometer"},//, "latitude", "longitude" },
                 null,
                 null,
                 null,
@@ -254,7 +273,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         cursor.close();//忘れずに！
 
+    }
 
+    @Override
+    public void onLocationChanged(Location location){
+        TextView textView1 = (TextView)findViewById(R.id.textview1);
+        textView1.setText(String.valueOf(location.getLatitude()));
+
+        TextView textView2 = (TextView)findViewById(R.id.textview2);
+        textView2.setText(String.valueOf(location.getLongitude()));
+    }
+
+    @Override
+    public void onProviderDisabled(String provider){
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider){
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras){
 
     }
 }

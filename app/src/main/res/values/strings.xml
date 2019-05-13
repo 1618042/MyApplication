@@ -15,4 +15,6 @@
     <string name="change">CHANGE</string>
     <string name="stop">STOP</string>
     <string name="timeview">TextView</string>
+    <string name="textview1">TextView</string>
+    <string name="textview2">TextView</string>
 </resources>

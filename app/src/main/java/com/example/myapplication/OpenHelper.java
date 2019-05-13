@@ -12,7 +12,9 @@ public class OpenHelper extends SQLiteOpenHelper {
     private static final String _ID = "_id";
     private static final String time = "time";
     private static final String accelerometer = "accelerometer";
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE "+ TABLE_NAME + " (" + _ID + " INTEGER PRIMARY KEY," + time + " time," +  accelerometer + " accelerometer)";
+    private static final String latitude = "latitude";
+    private static final String longitude = "longitude";
+    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE "+ TABLE_NAME + " (" + _ID + " INTEGER PRIMARY KEY," + time + " time," +  accelerometer + " accelerometer,"+ latitude + " latitude," +  longitude + " longitude)";
     private static final String SQL_DERETE_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     OpenHelper(Context context){
