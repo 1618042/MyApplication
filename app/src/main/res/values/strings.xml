@@ -17,4 +17,8 @@
     <string name="timeview">TextView</string>
     <string name="textview1">TextView</string>
     <string name="textview2">TextView</string>
+    <string name="subactivity">Button</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="mapsactivity">Button</string>
+    <string name="back">back</string>
 </resources>
