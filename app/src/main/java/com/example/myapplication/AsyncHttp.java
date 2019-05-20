@@ -69,6 +69,7 @@ public class AsyncHttp extends AsyncTask<String, Integer, Boolean> {
         eventset();
         locationset();
         try {
+
             String sendData = "input_username="+ URLEncoder.encode("mznjerk","utf-8")+"&input_password="+URLEncoder.encode("kansoukikashiteyo","utf-8");
             url = new URL(urlinput);
             urlConnection = (HttpURLConnection)url.openConnection();

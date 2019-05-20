@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mapset();
         phpMyAdminset();
 
+
     }
     public void phpMyAdminset(){
         //phpMyAdmin
@@ -131,9 +132,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         dbbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String time1 = String.valueOf(time);
-                AsyncHttp post = new AsyncHttp(time1, event1, location1);
-                post.execute();
+                //String time1 = String.valueOf(time);
+                //AsyncHttp post = new AsyncHttp(time1, event1, location1);
+                //post.execute();
+                MySQL mySQL = new MySQL();
             }
         });
     }
