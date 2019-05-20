@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         String nowDate = simpleDateFormat.format(calendar.getTime());
                         timeView.setText(String.valueOf(nowDate));
                         time = nowDate;
-                        csvFile(event1,location1); //csv出力
+                        //csvFile(event1,location1); //csv出力
                     }
                 });
             }

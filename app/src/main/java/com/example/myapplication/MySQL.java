@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.util.Log;
+
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.HashMap;
