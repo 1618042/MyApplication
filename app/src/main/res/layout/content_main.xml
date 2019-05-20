@@ -11,7 +11,7 @@
     <TextView
         android:id="@+id/timeview"
         android:layout_width="201dp"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="25dp"
         android:layout_marginRight="25dp"
@@ -22,7 +22,7 @@
     <TextView
         android:id="@+id/xValue"
         android:layout_width="75dp"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
         android:layout_marginLeft="80dp"
         android:layout_marginTop="50dp"
@@ -33,7 +33,7 @@
     <TextView
         android:id="@+id/yValue"
         android:layout_width="76dp"
-        android:layout_height="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
         android:layout_marginLeft="80dp"
         android:layout_marginTop="100dp"
@@ -44,7 +44,7 @@
     <TextView
         android:id="@+id/zValue"
         android:layout_width="77dp"
-        android:layout_height="21dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
         android:layout_marginLeft="80dp"
         android:layout_marginTop="150dp"
@@ -98,7 +98,7 @@
 
     <Button
         android:id="@+id/button_start"
-        android:layout_width="82dp"
+        android:layout_width="70dp"
         android:layout_height="40dp"
         android:layout_marginStart="184dp"
         android:layout_marginLeft="184dp"
@@ -109,10 +109,10 @@
 
     <Button
         android:id="@+id/button_stop"
-        android:layout_width="82dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="312dp"
-        android:layout_marginLeft="312dp"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="252dp"
+        android:layout_marginLeft="252dp"
         android:layout_marginTop="88dp"
         android:text="@string/stop"
         app:layout_constraintStart_toStartOf="parent"
@@ -159,19 +159,30 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="207dp"
         android:layout_marginLeft="207dp"
-        android:layout_marginTop="196dp"
+        android:layout_marginTop="197dp"
         android:text="@string/textview2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/mapsactivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="312dp"
-        android:layout_marginLeft="312dp"
-        android:layout_marginTop="140dp"
-        android:text="maps"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="320dp"
+        android:layout_marginLeft="320dp"
+        android:layout_marginTop="88dp"
+        android:text="@string/maps"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/db_button"
+        android:layout_width="70dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="184dp"
+        android:layout_marginLeft="184dp"
+        android:layout_marginTop="136dp"
+        android:text="@string/db"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

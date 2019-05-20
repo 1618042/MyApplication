@@ -77,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     SensorEvent event1;
     Location location1;
 
-    int i;
-    int j;
+    int i=0;
+    int j=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -94,8 +94,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void run() {
                 System.out.println(i +j);
                 if (i==1 || j==1){
-
-                    dbset(event1,location1);
+                    sqliteset(event1,location1);
                 }
             }
         };
@@ -121,6 +120,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         buttonStop.setOnClickListener(this);
         //Button buttonChange = findViewById(R.id.button_change);
         //buttonChange.setOnClickListener(this);
+
+        mapset();
+        phpMyAdminset();
+
+    }
+    public void phpMyAdminset(){
+        //phpMyAdmin
+        Button dbbutton = findViewById(R.id.db_button);
+        dbbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String time1 = String.valueOf(time);
+                AsyncHttp post = new AsyncHttp(time1, event1, location1);
+                post.execute();
+            }
+        });
+    }
+
+
+    public void mapset(){
+        //map
         Button mapsactivity = findViewById(R.id.mapsactivity);
         mapsactivity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         String nowDate = simpleDateFormat.format(calendar.getTime());
                         timeView.setText(String.valueOf(nowDate));
                         time = nowDate;
+                        csvFile(event1,location1); //csv出力
                     }
                 });
             }
@@ -175,18 +196,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mChart.notifyDataSetChanged();
             mChart.setVisibleXRangeMaximum(50);//表示幅を決定する
             mChart.moveViewToX(data.getEntryCount());
-            //System.out.println(event.sensor.getType());
 
-            //csv出力
-            //csvFile();
-
-            /*if (j==1){
-                dbset(event1,location1);
-            }*/
+            if (j==1){
+                sqliteset(event1,location1); //sqlite
+            }
         }
-
-
-
     }
     private LineDataSet createSet(String label, int color){
         LineDataSet set = new LineDataSet(null, label);
@@ -194,62 +208,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         set.setColor(color);
         set.setDrawCircles(false);
         set.setDrawValues(false);
-
         return set;
     }
 
-    public void csvFile(){
-        /*try{
+    public void csvFile(SensorEvent event1, Location location1){
+        try{
             FileWriter fw = new FileWriter(getFilesDir()+filename,true);//true追記、false上書き
             PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
 
             pw.print(time);
             pw.print(",");
-            pw.print(event.values[0]);
+            pw.print(event1.values[0]);
             pw.print(",");
-            pw.print(event.values[1]);
+            pw.print(event1.values[1]);
             pw.print(",");
-            pw.print(event.values[2]);
+            pw.print(event1.values[2]);
+            pw.print(",");
+            if (location1 == null){
+                pw.print(location1);
+                pw.print(",");
+                pw.print(location1);
+            }else {
+                pw.print(location1.getLatitude());
+                pw.print(",");
+                pw.print(location1.getLongitude());
+            }
             pw.println();
             pw.close();
-            //System.out.println("出力が完了しました。");
-            //System.out.println("PATH："+getFilesDir());
-            //System.out.println(time);
         }catch (IOException e){
-            //例外時処理
-            e.printStackTrace();
-            //System.out.print("例外時処理です。");
-
-        }*/
+            e.printStackTrace(); //例外時処理
+        }
     }
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy){
-
     }
-
     @Override
     protected void onResume(){
         super.onResume();
         manager.registerListener(this,sensor,62500);
-
         //GPSチェック
         if ( (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                 (PermissionChecker.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) ){
             locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
-            //Log.d("debug","GPS");
             System.out.println("GPS");
         }
         //Wi-fiチェック
         if ( (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                 (PermissionChecker.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) ){
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,this);
-            //Log.d("debug","Wi-fi");
             System.out.println("Wi-fi");
-
         }
-
     }
 
     @Override
@@ -278,25 +287,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }else{
                     line = true;
                 }
-                mChart.setData(new LineData());
                 break;*/
         }
     }
 
-    public void dbset(SensorEvent event1, Location location1){
-        Log.d("debug", "dbset");
+    public void sqliteset(SensorEvent event1, Location location1){
         if (helper == null){
             helper = new OpenHelper(getApplicationContext());
-            //Log.d("debug","OpenHelper");
         }
         if (db == null){
             helper.getWritableDatabase();
-            //Log.d("debug","helper.getWritableDatabase");
         }
         insertData(event1, location1);
-        //Log.d("debug","insertData");
         readData();
-        //Log.d("debug","readData");
     }
 
     private void insertData( SensorEvent event, Location location){
@@ -304,31 +307,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(" time", time);
-        //String value = event.values[0]+","+event.values[1]+","+event.values[2];
-        //values.put(" accelerometer", value);
         values.put(" x_axis", String.valueOf(event.values[0]));
         values.put(" y_axis", String.valueOf(event.values[1]));
         values.put(" z_axis", String.valueOf(event.values[2]));
-        //System.out.println(values);
-        //System.out.println("value: "+ value);
         values.put(" latitude", location.getLatitude());
         values.put(" longitude", location.getLongitude());
         db.insert("test1db", null, values);
-        //db.close();
-        //System.out.println("open : "+db.isOpen());
-
-
     }
     private void readData(){
         if (helper == null){
             helper = new OpenHelper(getApplicationContext());
-            //Log.d("a","help");
         }
         if(db == null){
             db = helper.getReadableDatabase();
-            //Log.d("a","db");
         }
-
         Cursor cursor = db.query(
                 "test1db",
                 new String[]{ "time", "x_axis", "y_axis", "z_axis" , "latitude", "longitude" },
@@ -337,10 +329,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 null,
                 null,
                 null
-
         );
         cursor.moveToFirst();
-
 
         StringBuilder sbuilder = new StringBuilder();
         for (int i = 0; i < cursor.getCount(); i++){
@@ -351,26 +341,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             cursor.moveToNext();
         }
         cursor.close();//忘れずに！
-        //System.out.println("close? : "+cursor.isClosed());
-
     }
 
     @Override
     public void onLocationChanged(Location location){
         j=1;
         location1 = location;
-        Log.d("debug","location");
         textView1.setText(String.valueOf(location.getLatitude()));
-        //System.out.println("Latitude : "+location.getLatitude());
-
         textView2.setText(String.valueOf(location.getLongitude()));
-        //System.out.println("Longitude : "+location.getLongitude());
-        System.out.println("location : "+location);
-
-        /*if (i == 1){
-            dbset(event1,location1);
-        }*/
-
+        if (i == 1){
+            sqliteset(event1,location1);
+        }
     }
 
     @Override
@@ -387,11 +368,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onStatusChanged(String provider, int status, Bundle extras){
 
     }
-
     protected void onDestroy(){
         super.onDestroy();
         db.close();
     }
-
-
 }

@@ -21,4 +21,6 @@
     <string name="title_activity_maps">Map</string>
     <string name="mapsactivity">Button</string>
     <string name="back">back</string>
+    <string name="maps">maps</string>
+    <string name="db">db</string>
 </resources>
