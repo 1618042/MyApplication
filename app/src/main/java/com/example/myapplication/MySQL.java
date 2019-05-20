@@ -26,7 +26,7 @@ public class MySQL {
     public MySQL() {
         this.driver = "org.gjt.mm.mysql.Driver";
         this.server = "mznjerk.mizunolab.info";
-        this.dbname = "Test1";
+        this.dbname = "mznjerk";
         this.url = "jdbc:mysql://" + server + "/" + dbname + "?useUnicode=true&characterEncoding=UTF-8";
         this.user = "mznjerk";
         this.password = "kansoukikashiteyo";
