@@ -31,6 +31,9 @@ public class MySQL {
         this.user = "mznjerk";
         this.password = "kansoukikashiteyo";
         try {
+            System.out.println("url"+url);
+            System.out.println("user"+user);
+            System.out.println("password"+password);
             this.con = DriverManager.getConnection(url, user, password);
             this.stmt = con.createStatement ();
         } catch (SQLException e) {
