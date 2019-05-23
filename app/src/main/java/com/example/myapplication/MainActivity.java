@@ -23,7 +23,9 @@ import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -74,11 +76,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView textView1;
     TextView textView2;
     LocationManager locationManager;
-    SensorEvent event1;
-    Location location1;
+    SensorEvent event1=null;
+    Location location1=null;
 
     int i=0;
     int j=0;
+
+    Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -88,16 +92,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         time();
         createdb();
     }
+
     public void createdb(){
-        TimerTask task = new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                System.out.println(i +j);
                 if (i==1 || j==1){
-                    sqliteset(event1,location1);
+                    //sqliteset();
                 }
             }
-        };
+        },0,1);
     }
 
     public void buttonset(){
@@ -111,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         manager = (SensorManager)getSystemService(SENSOR_SERVICE);
         sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        mChart = (LineChart) findViewById(R.id.lineChart);
-        mChart.setData(new LineData());
+        //mChart = (LineChart) findViewById(R.id.lineChart);
+        //mChart.setData(new LineData());
 
         Button buttonStart = findViewById(R.id.button_start);
         buttonStart.setOnClickListener(this);
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //String time1 = String.valueOf(time);
                 //AsyncHttp post = new AsyncHttp(time1, event1, location1);
                 //post.execute();
-                MySQL mySQL = new MySQL();
+                //MySQL mySQL = new MySQL();
             }
         });
     }
@@ -170,7 +174,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         String nowDate = simpleDateFormat.format(calendar.getTime());
                         timeView.setText(String.valueOf(nowDate));
                         time = nowDate;
-                        //csvFile(event1,location1); //csv出力
+                        csvFile(); //csv出力
+                        onsensorset();
                     }
                 });
             }
@@ -179,12 +184,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event){
         event1 = event;
+    }
+    public void onsensorset(){
         i=1;
-        xTextView.setText(String.valueOf(event.values[0]));
-        yTextView.setText(String.valueOf(event.values[1]));
-        zTextView.setText(String.valueOf(event.values[2]));
+        xTextView.setText(String.valueOf(event1.values[0]));
+        yTextView.setText(String.valueOf(event1.values[1]));
+        zTextView.setText(String.valueOf(event1.values[2]));
 
-        LineData data = mChart.getLineData();
+        /*LineData data = mChart.getLineData();
         if (data != null){
             for (int i = 0; i < 3; i++){
                 ILineDataSet set = data.getDataSetByIndex(i);
@@ -192,17 +199,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     set = createSet(names[i], colors[i]);
                     data.addDataSet(set);
                 }
-                data.addEntry(new Entry(set.getEntryCount(), event.values[i]), i);
+                data.addEntry(new Entry(set.getEntryCount(), event1.values[i]), i);
                 data.notifyDataChanged();
             }
-            mChart.notifyDataSetChanged();
-            mChart.setVisibleXRangeMaximum(50);//表示幅を決定する
-            mChart.moveViewToX(data.getEntryCount());
-
+            //mChart.notifyDataSetChanged();
+            //mChart.setVisibleXRangeMaximum(50);//表示幅を決定する
+            //mChart.moveViewToX(data.getEntryCount());
+*/
             if (j==1){
-                sqliteset(event1,location1); //sqlite
+                sqliteset(); //sqLiteで
             }
-        }
+        //}
     }
     private LineDataSet createSet(String label, int color){
         LineDataSet set = new LineDataSet(null, label);
@@ -213,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return set;
     }
 
-    public void csvFile(SensorEvent event1, Location location1){
+    public void csvFile(){
         try{
             FileWriter fw = new FileWriter(getFilesDir()+filename,true);//true追記、false上書き
             PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
@@ -247,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume(){
         super.onResume();
-        manager.registerListener(this,sensor,62500);
+        manager.registerListener(this,sensor,602500);
         //GPSチェック
         if ( (PermissionChecker.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                 (PermissionChecker.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) ){
@@ -293,28 +300,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    public void sqliteset(SensorEvent event1, Location location1){
+    public void sqliteset(){
         if (helper == null){
             helper = new OpenHelper(getApplicationContext());
         }
         if (db == null){
             helper.getWritableDatabase();
         }
-        insertData(event1, location1);
-        readData();
+        insertData();
+        //readData();
     }
 
-    private void insertData( SensorEvent event, Location location){
+    private void insertData(){
         helper = new OpenHelper(this);
         db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(" time", time);
-        values.put(" x_axis", String.valueOf(event.values[0]));
-        values.put(" y_axis", String.valueOf(event.values[1]));
-        values.put(" z_axis", String.valueOf(event.values[2]));
-        values.put(" latitude", location.getLatitude());
-        values.put(" longitude", location.getLongitude());
+        values.put(" x_axis", String.valueOf(event1.values[0]));
+        values.put(" y_axis", String.valueOf(event1.values[1]));
+        values.put(" z_axis", String.valueOf(event1.values[2]));
+        //System.out.println(location1);
+        values.put(" latitude", location1.getLatitude());
+        values.put(" longitude", location1.getLongitude());
         db.insert("test1db", null, values);
+
+        final ListView listView = findViewById(R.id.view01);
+        try{
+            cursor = db.rawQuery("SELECT * from test1db", null);
+            cursor.moveToFirst();
+            //System.out.println(cursor.getCount());
+            if (cursor.getCount() > 0){
+                Integer[] data = new Integer[cursor.getCount()];
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext() , R.layout.support_simple_spinner_dropdown_item);
+                for (int cnt = 0; cnt < cursor.getCount(); cnt++){
+                    data[cnt] = cursor.getInt(0);
+                    adapter.add("ID : "+cursor.getString(0)+"time : "+cursor.getString(1)+"x_axis : "+cursor.getString(2)+"y_axis : "+cursor.getString(3)+"z_axis : "+cursor.getString(4)+"latitude : "+cursor.getString(5)+"longitude : "+cursor.getString(6));
+                    cursor.moveToNext();
+                    listView.setAdapter(adapter);
+                }
+            }else{
+                listView.setAdapter(null);
+            }
+        }finally {
+            db.close();
+        }
     }
     private void readData(){
         if (helper == null){
@@ -323,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if(db == null){
             db = helper.getReadableDatabase();
         }
-        Cursor cursor = db.query(
+        cursor = db.query(
                 "test1db",
                 new String[]{ "time", "x_axis", "y_axis", "z_axis" , "latitude", "longitude" },
                 null,
@@ -334,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         );
         cursor.moveToFirst();
 
-        StringBuilder sbuilder = new StringBuilder();
+        /*StringBuilder sbuilder = new StringBuilder();
         for (int i = 0; i < cursor.getCount(); i++){
             sbuilder.append(cursor.getString(0));
             sbuilder.append(": ");
@@ -343,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             cursor.moveToNext();
         }
         cursor.close();//忘れずに！
+*/
     }
 
     @Override
@@ -352,7 +382,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textView1.setText(String.valueOf(location.getLatitude()));
         textView2.setText(String.valueOf(location.getLongitude()));
         if (i == 1){
-            sqliteset(event1,location1);
+            sqliteset();
         }
     }
 

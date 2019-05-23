@@ -23,4 +23,5 @@
     <string name="back">back</string>
     <string name="maps">maps</string>
     <string name="db">db</string>
+    <string name="view01">TextView</string>
 </resources>
